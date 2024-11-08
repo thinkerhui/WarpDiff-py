@@ -114,8 +114,8 @@ def find_buggy_runtimes():
         sorted_distance_dict_by_runtime.update({case_name: distance_to_center})
     # print(sorted_distance_dict_by_runtime)
 
-    #result_file = os.path.join('..', 'results1.csv')
-    #write_csv(sorted_distance_dict_by_runtime, result_file)
+    result_file = os.path.join('..', 'results1.csv')
+    write_csv(sorted_distance_dict_by_runtime, result_file)
 
 
 def write_csv(data, file):

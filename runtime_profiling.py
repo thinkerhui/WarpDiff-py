@@ -5,6 +5,7 @@ import func_timeout
 from func_timeout import func_set_timeout
 from numpy import mean
 import csv
+from common_utils import write_csv
 import traceback
 import subprocess
 from datetime import datetime
@@ -26,24 +27,34 @@ WAMR_AOT = 'wamrc'
 WAMR_AOT_RT = "wamr-aot-rt"
 WAMR_JIT = 'iwasm-jit'
 WAVM = 'wavm'
-RUNTIMES = [WASMER, WASMTIME, WASM3, WASMEDGE_AOT, WASMEDGE, WAMR_AOT, WAMR, WAMR_JIT]
-
+# RUNTIMES = [WASMER, WASMTIME, WASM3, WASMEDGE_AOT, WASMEDGE, WAMR_AOT, WAMR, WAMR_JIT]
+RUNTIMES = [NATIVE, WASMER, WASMTIME]
 TARGET_DIR = os.path.join('..', 'targets')
 PROFILIGDATA_DIR = os.path.join('..', 'profiling_data')
 PERF_LOG_DIR = os.path.join('..', 'perf_log')
 
+# EXECUTE_COMMAND_TEMPLATE = {
+#     NATIVE: './%s',
+#     WASMER: '/home/ringzzz/wasm_runtime/wasmer/target/release/wasmer %s',
+#     WASMTIME: 'wasmtime %s',
+#     WASM3: 'wasm3 %s',
+#     WASMEDGE: 'wasmedge %s',
+#     WASMEDGE_AOT: 'wasmedge %s',
+#     # WASMEDGE_AOT: 'wasmedgec %s %s && wasmedge %s',
+#     WAMR: 'iwasm %s',
+#     # WAVM: 'wavm run %s'
+# }
 EXECUTE_COMMAND_TEMPLATE = {
     NATIVE: './%s',
-    WASMER: '/home/ringzzz/wasm_runtime/wasmer/target/release/wasmer %s',
+    WASMER: 'wasmer %s',
     WASMTIME: 'wasmtime %s',
     WASM3: 'wasm3 %s',
     WASMEDGE: 'wasmedge %s',
     WASMEDGE_AOT: 'wasmedge %s',
     # WASMEDGE_AOT: 'wasmedgec %s %s && wasmedge %s',
     WAMR: 'iwasm %s',
-    # WAVM: 'wavm run %s'
+    WAVM: 'wavm run %s'
 }
-
 TIME_UNIT = 1000000
 PROBE_NUM = 5
 
@@ -59,17 +70,24 @@ RUNTIMES_PROBES = {
     WAMR_JIT: ["sched:sched_process_exec", "probe_iwasm:abs_1c0c00", "probe_iwasm:abs_23e350", "sched:sched_process_exit"]
 }
 
+# RUNTIME_PATH = {
+#     WASMER: '/home/ringzzz/wasm_runtime/wasmer/target/release/wasmer',
+#     WASMTIME: '/home/ringzzz/wasm_runtime/wasmtime/target/release/wasmtime',
+#     WASM3: '/home/ringzzz/wasm_runtime/wasm3/build/wasm3',
+#     WASMEDGE: '/home/ringzzz/wasm_runtime/WasmEdge/build/tools/wasmedge/wasmedge',
+#     WASMEDGE_AOT: '/home/ringzzz/wasm_runtime/WasmEdge/build/tools/wasmedge/wasmedgec',
+#     WAMR: '/home/ringzzz/wasm_runtime/wasm-micro-runtime/product-mini/platforms/linux/build-fast-interp/iwasm',
+#     WAMR_AOT: '/home/ringzzz/wasm_runtime/wasm-micro-runtime/wamr-compiler/build/wamrc',
+#     WAMR_JIT: '/home/ringzzz/wasm_runtime/wasm-micro-runtime/product-mini/platforms/linux/build/iwasm'
+# }
 RUNTIME_PATH = {
-    WASMER: '/home/ringzzz/wasm_runtime/wasmer/target/release/wasmer',
-    WASMTIME: '/home/ringzzz/wasm_runtime/wasmtime/target/release/wasmtime',
-    WASM3: '/home/ringzzz/wasm_runtime/wasm3/build/wasm3',
-    WASMEDGE: '/home/ringzzz/wasm_runtime/WasmEdge/build/tools/wasmedge/wasmedge',
-    WASMEDGE_AOT: '/home/ringzzz/wasm_runtime/WasmEdge/build/tools/wasmedge/wasmedgec',
-    WAMR: '/home/ringzzz/wasm_runtime/wasm-micro-runtime/product-mini/platforms/linux/build-fast-interp/iwasm',
-    WAMR_AOT: '/home/ringzzz/wasm_runtime/wasm-micro-runtime/wamr-compiler/build/wamrc',
-    WAMR_JIT: '/home/ringzzz/wasm_runtime/wasm-micro-runtime/product-mini/platforms/linux/build/iwasm'
+    WASMER: 'wasmer',
+    WASMTIME: 'wasmtime',
+    WASM3: 'wasm3',
+    WASMEDGE: 'wasmedge',
+    WASMEDGE_AOT: 'wasmedgec',
+    WAMR: 'iwasm',
 }
-
 RUNTIME_CMDS = {
     WASMER: [
         ["{runtime} {wasm}", f"make {WASMER}-perf-record", RUNTIMES_PROBES[WASMER], WASMER, WASMER],
@@ -106,16 +124,7 @@ PERF_LOG_TIMESTAMP_IDX = 3
 PERF_LOG_PROBE_IDX = 4
 
 
-def write_csv(data, file):
-    print('Write to ' + file)
-    if not os.path.exists(file):
-        with open(file, 'w') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(data)
-    else:
-        with open(file, 'a+') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(data)  
+ 
     
 
 def profile_bin_size_by_target(target, out_dir):
@@ -362,10 +371,14 @@ def main():
         # 3.31 test
         # profile_by_benchmark(MISCCPPEH) # empty
         profile_by_benchmark(POLYBENCH)
-        profile_by_benchmark(SHOOTOUT)
-        profile_by_benchmark(SHOOTOUTCPP)
+        # profile_by_benchmark(SHOOTOUT)
+        # profile_by_benchmark(SHOOTOUTCPP)
         # profile_by_benchmark(SMALLPT) # empty
-        profile_by_benchmark(STANDFORD)
+        # profile_by_benchmark(STANDFORD)
+        
+        
+        
+        
 
 
 if __name__=="__main__":
