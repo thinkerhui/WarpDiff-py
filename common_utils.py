@@ -3,14 +3,18 @@ from colorlog import ColoredFormatter
 import time
 import os
 import csv
-def get_logger():
+in_logger = None
+def get_logger(log_file_suffix=''):
+    global in_logger
+    if in_logger is not None:
+        return in_logger
     # 创建 logger
     logger = logging.getLogger('my_logger')
     logger.setLevel(logging.DEBUG)
 
     # 创建文件处理器，将日志记录到文件
     os.makedirs('./log', exist_ok=True)
-    file_handler = logging.FileHandler('./log/pywasm_%s.log'%time.time())
+    file_handler = logging.FileHandler('./log/pywasm_%s_%s.log'%(time.time(), log_file_suffix))
     file_handler.setLevel(logging.DEBUG)
     file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_formatter)
@@ -40,6 +44,7 @@ def get_logger():
     logger.warning('这是警告消息')
     logger.error('这是错误消息')
     logger.critical('这是严重错误消息')
+    in_logger = logger
     return logger
 
 def write_csv(data, file):
@@ -52,3 +57,9 @@ def write_csv(data, file):
         with open(file, 'a+') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(data) 
+
+def write_txt(str,file):
+    print('Write to ' + file)
+    with open(file, 'w') as f:
+        f.write(str)
+    
