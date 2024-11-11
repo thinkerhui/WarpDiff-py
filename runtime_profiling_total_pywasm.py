@@ -7,12 +7,12 @@ from numpy import mean
 import csv
 import traceback
 from compile_to_target_pywasm import BENCHMARKS, TARGET_DIR, TARGET_SUFFIX
-from pywasm_testdata import data
+from pywasm_testdata import data,error_case
 from io import StringIO
 import subprocess
-from WarpDiff.common_utils import get_logger
+from common_utils import get_logger,write_txt
 # 获取logger
-logger = get_logger()
+logger = get_logger('runtime_profiling_total_pywasm')
 
 TEST_TIMES = 1
 
@@ -25,7 +25,8 @@ WASMEDGE_AOT = 'wasmedge_aot'
 WAMR = 'wamr'
 WAVM = 'wavm'
 # RUNTIMES = [NATIVE, WASMER, WASMTIME, WASM3, WAMR, WAVM]
-RUNTIMES = [WASMTIME, WASMEDGE, WASMEDGE_AOT, WASM3, WAMR]
+# RUNTIMES = [WASMTIME, WASMEDGE_AOT, WASM3, WAMR]
+RUNTIMES = [WASMTIME]
 # RUNTIMES = [WASMTIME, WASMEDGE]
 TARGET_DIR = os.path.join('..', 'targets_pywasm')
 PROFILINGDATA_DIR = os.path.join('..', 'profiling_data_pywasm')
@@ -106,12 +107,20 @@ def profile_execution_time(wasm_target, out_dir, args, test_data_file):
                 end = perf_counter()
                 execution_time = end - start
                 times.append(execution_time)
-            except func_timeout.exceptions.FunctionTimedOut as e:
+                # global correct_case
+                # correct_case.append(target)
+            # except func_timeout.exceptions.FunctionTimedOut as e:
+            #     logger.error(e)
+            #     error_case.append(target)
+            #     break
+            except Exception as e:
                 logger.error(e)
+                # global error_case
+                # error_case.append(target)
                 break
         avg_time = mean(times)
         logger.info('Average time: '+str(avg_time))
-
+        
         target_name = os.path.basename(target)
         data = ['execution_time', runtime, target_name, avg_time]
         execution_time_out_dir = os.path.join(out_dir, 'execution_time')
@@ -124,9 +133,13 @@ def profile_execution_time(wasm_target, out_dir, args, test_data_file):
 def run(command, input_str = None):
     process = subprocess.Popen(args=command,shell=True,stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = process.communicate(input=input_str)
-    logger.warning(process.returncode)
-    logger.error(stderr)
-    logger.info(stdout)
+    if process.returncode:
+        logger.warning(process.returncode)
+    if stderr:
+        logger.info(stdout)
+        # logger.error(stderr)
+        raise Exception('Error in executing command: ' + command)
+    # logger.info(stdout)
 
 
 def profile_by_source(wasm_target, out_dir, args, test_data_file = None):
@@ -141,8 +154,11 @@ def profile_by_benchmark(benchmark):
     # 如果原始代码有对应的WASM代码，则进行性能测试
     benchmark_dir = os.path.join(TARGET_DIR, benchmark)
     for file in os.listdir(benchmark_dir):
-        if file.endswith(TARGET_SUFFIX):
+        if file.endswith(TARGET_SUFFIX) and 'aot' not in file:
             wasm_target_path = os.path.join(benchmark_dir, file)
+            # 检测target是否在不可运行列表
+            if wasm_target_path in error_case:
+                continue
             args = data[benchmark]
             test_data_file = None
             if benchmark in LONGINPUT_BENCHMARK:
@@ -159,13 +175,17 @@ def profile_all():
 
 
 def main():
-    if len(sys.argv) != 1:
-        logger.info('Wrong number of parameters')
-    else:
-        # profile_all()
-        profile_by_benchmark('knucleotide')
-        
-
+        # record error/corrrect cases when running
+        # global error_case
+        # error_case = []
+        # global correct_case
+        # correct_case = []
+        profile_all()
+        # profile_by_benchmark('knucleotide')
+        # logger.info('Error cases:'+str(error_case))
+        # write_txt(str(error_case), 'error_case.txt')
+        # logger.info('Correct cases:'+str(correct_case))
+        # write_txt(str(correct_case), 'correct_case.txt')
 
 if __name__=="__main__":
     main()
