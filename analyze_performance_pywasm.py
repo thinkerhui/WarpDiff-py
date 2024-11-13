@@ -9,23 +9,12 @@ from compile_to_target_pywasm import BENCHMARKS
 
 PROFILINGDATA_DIR = os.path.join('..', 'profiling_data_pywasm')
 
-# WASMER = 'wasmer'
-# WASMTIME = 'wasmtime'
-# WASM3 = 'wasm3'
-# WASM3_COMPILE = 'wasm3--compile'
-# WASMEDGE = 'wasmedge_aot'
-# WAMR = 'iwasm'
-# WAMR_AOT = 'iwasm_aot'
-# WAMR_FASTJIT = 'iwasm--fast-jit'
-# WAMR_LLVMJIT = 'iwasm--llvm-jit'
-# WAMR_MULTITIERJIT = 'iwasm--multi-tier-jit'
-# RUNTIME_LIST = [WASMER, WASMTIME, WASM3, WASM3_COMPILE, WASMEDGE, WAMR, WAMR_AOT] 
 WASMTIME = 'wasmtime'
 WASM3 = 'wasm3'
 WASMEDGE = 'wasmedge'
 WASMEDGE_AOT = 'wasmedge_aot'
 WAMR = 'wamr'
-RUNTIME_LIST = [WASMTIME, WASM3, WASMEDGE, WASMEDGE_AOT, WAMR]
+RUNTIME_LIST = [WASMTIME, WASM3, WASMEDGE_AOT, WAMR]
 
 def get_case_vector(case, benchmark_dir):
     if case == 'recursive.wasm' or case == 'ackermann.wasm':
@@ -122,7 +111,7 @@ def find_buggy_runtimes():
         sorted_distance_dict_by_runtime.update({case_name: distance_to_center})
     # print(sorted_distance_dict_by_runtime)
 
-    result_file = os.path.join('..', 'results1.csv')
+    result_file = os.path.join('..', 'results2.csv')
     write_csv(sorted_distance_dict_by_runtime, result_file)
 
 
