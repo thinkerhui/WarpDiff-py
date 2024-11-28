@@ -14,7 +14,7 @@ from common_utils import get_logger,write_txt
 # 获取logger
 logger = get_logger('runtime_profiling_total_pywasm')
 
-TEST_TIMES = 1
+TEST_TIMES = 5
 
 NATIVE = 'x86native'
 WASMER = 'wasmer'
@@ -25,8 +25,8 @@ WASMEDGE_AOT = 'wasmedge_aot'
 WAMR = 'wamr'
 WAVM = 'wavm'
 # RUNTIMES = [NATIVE, WASMER, WASMTIME, WASM3, WAMR, WAVM]
-# RUNTIMES = [WASMTIME, WASMEDGE_AOT, WASM3, WAMR]
-RUNTIMES = [WASMTIME]
+RUNTIMES = [WASMTIME, WASMEDGE_AOT, WASM3, WAMR]
+# RUNTIMES = [WASMTIME]
 # RUNTIMES = [WASMTIME, WASMEDGE]
 TARGET_DIR = os.path.join('..', 'targets_pywasm')
 PROFILINGDATA_DIR = os.path.join('..', 'profiling_data_pywasm')
