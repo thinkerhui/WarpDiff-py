@@ -1,2 +1,4 @@
 __pycache__/
 log/
+perf.data
+perf.data.old
